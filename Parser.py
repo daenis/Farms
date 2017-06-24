@@ -1,15 +1,40 @@
+import csv
+import os
+from db import db
 from peewee import *
 from playhouse.csv_loader import load_csv
-import os
-import csv
-#import json
 
 CWD = os.getcwd()
 
 class Parser:
+    """Parse the CSV and convert to model"""
+    # creates member scopes for the instance
+    # saves memory rather than standard dict
+    __slots__ = [
+        'name',
+        'street_address',
+        'state',
+        'city',
+        'zip',
+        'phone',
+        'website',
+        'type'
+    ]
+    def __init__(self, string):
+        values = string.split(',')
+        self.name = values[0]
+        self.street_address = values[1]
+        self.city = values[2]
+        self.state = values[3]
+        self.zip = values[4]
+        self.phone = values[5]
+        self.website = values[6]
+        self.type = values[7]
+
 
     @staticmethod
-    def csv_to_model(model, csv_file):
-        load_csv(model, csv_file)
-
-        fields = model
+    def csv_to_model():
+        db.connect()
+        with open(CWD + '/farm_data.csv', 'r') as file:
+            for line in file:
+                print(line)

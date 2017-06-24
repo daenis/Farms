@@ -11,6 +11,7 @@ class Farms(Model):
 
     class Meta:
         database = db
+        db_table = 'FARMS'
 
     @staticmethod
     def csv_to_model():

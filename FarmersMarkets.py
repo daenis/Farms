@@ -13,3 +13,4 @@ class Farmers_Market(Model):
 
     class Meta:
         database = db
+        db_table = 'FARMERS_MARKET'
