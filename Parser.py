@@ -1,8 +1,10 @@
 import csv
 import os
 from db import db
+from Farms import Farms
 from peewee import *
 from playhouse.csv_loader import load_csv
+from uuid import uuid4
 
 CWD = os.getcwd()
 
@@ -47,6 +49,19 @@ class Parser:
     def __ne__(self, other):
         return self.__determinate(self.type, other)
 
+    def get_dictionary(self):
+        return {
+            'uuid': uuid4(),
+            'name': self.name,
+            'street_address': self.street_address,
+            'city': self.city,
+            'state': self.state,
+            'zip': self.zip,
+            'phone': self.phone,
+            'website': self.website,
+            'type': self.type
+        }
+
     @staticmethod
     def csv_to_model():
         db.connect()
@@ -54,4 +69,5 @@ class Parser:
             for line in file:
                 parsed = Parser(line)
                 if parsed == 'Farm':
-                    pass
+                    farm = Farms.create(**parsed.get_dictionary())
+                    farm.save()

@@ -2,7 +2,7 @@ from peewee import *
 from db import db
 
 class Farmers_Market(Model):
-    uuid = UUIDField()
+    uuid = UUIDField(primary_key=True)
     city = CharField()
     email = CharField()
     phone = CharField()
@@ -14,3 +14,4 @@ class Farmers_Market(Model):
     class Meta:
         database = db
         db_table = 'FARMERS_MARKET'
+        auto_increment = False
