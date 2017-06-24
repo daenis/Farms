@@ -31,23 +31,27 @@ class Parser:
         self.website = values[6]
         self.type = values[7]
 
-    def __lt__(self, other):
-        pass
-    def __le__(self, other):
-        pass
-    def __eq__(self, other):
-        pass
-    def __ne__(self, other):
-        pass
-    def __gt__(self, other):
-        pass
-    def __ge__(self, other):
-        pass
+    @staticmethod
+    def _clean_string(string):
+        return ''.join(s.lower() for s in string.rstrip() if not s.isspace())
 
+    @staticmethod
+    def __determinate(first, second):
+        cmp_first = Parser._clean_string(first)
+        cmp_second = Parser._clean_string(second)
+        return cmp_first == cmp_second
+
+    def __eq__(self, other):
+        return self.__determinate(self.type, other)
+
+    def __ne__(self, other):
+        return self.__determinate(self.type, other)
 
     @staticmethod
     def csv_to_model():
         db.connect()
         with open(CWD + '/farm_data.csv', 'r') as file:
             for line in file:
-                print(line)
+                parsed = Parser(line)
+                if parsed == 'Farm':
+                    pass
