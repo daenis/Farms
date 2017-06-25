@@ -1,5 +1,5 @@
-from binascii import b2a_hex, hexlify, unhexlify
-from peewee import MySQLDatabase, Field
+from binascii import a2b_uu, b2a_hex, hexlify, unhexlify
+from peewee import MySQLDatabase, Field, SelectQuery, fn
 from uuid import UUID
 
 class UUIDFieldProper(Field):
@@ -12,17 +12,25 @@ class UUIDFieldProper(Field):
     db_field='binary(16)'
 
     def db_value(self, value):
-        return ''.join('%02x' % v for v in value)
+        print(value.urn[9:])
+        if value is None:
+            return None
+        print(len(value.urn[9:].encode('utf8')))
+        return value.urn[9:]
 
     def python_value(self, value):
-        bytes = []
-
-        hexStr = ''.join( value.split(" ") )
-
-        for i in range(0, len(hexStr), 2):
-            bytes.append( chr( int (hexStr[i:i+2], 16 ) ) )
-
-        return ''.join( bytes )
+        if value is None:
+            return None
+        query = SelectQuery(self.model_class, fn.HEX(value).alias('hex'))
+        result = query.first()
+        value = '{}-{}-{}-{}-{}'.format(
+            result.hex[0:8],
+            result.hex[8:12],
+            result.hex[12:16],
+            result.hex[16:20],
+            result.hex[20:32]
+        )
+        return value
 
 
 db = MySQLDatabase('db',
