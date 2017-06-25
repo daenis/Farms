@@ -1,8 +1,8 @@
-from binascii import hexlify
-from peewee import MySQLDatabase, Field
+from binascii import b2a_hex, hexlify, unhexlify
+from peewee import MySQLDatabase, BlobField
 from uuid import UUID
 
-class UUIDFieldProper(Field):
+class UUIDFieldProper(BlobField):
     """
     This class was takn to resolve issues with the uuid
     checkout: 
@@ -12,24 +12,17 @@ class UUIDFieldProper(Field):
     db_field='binary(16)'
 
     def db_value(self, value):
-        if isinstance(value, UUID):
-            return hexlify(value.bytes)
-        try:
-            return hexlify(UUID(value).bytes)
-        except:
-            return value
+        if not isinstance(value, UUID):
+            value = UUID(value)
+        parts = str(value).split("-")
+        reordered = ''.join([parts[2], parts[1], parts[0], parts[3], parts[4]])
+        value = unhexlify(reordered)
+        return super(UUIDFieldProper, self).db_value(value)
 
     def python_value(self, value):
-        if value is None:
-            return None
-
-        return '{}-{}-{}-{}-{}'.format(
-            hexlify(value[0:4]),
-            hexlify(value[4:6]),
-            hexlify(value[6:8]),
-            hexlify(value[8:10]),
-            hexlify(value[10:16])
-        )
+        u = b2a_hex(value)
+        value = u[8:16] + u[4:8] + u[0:4] + u[16:22] + u[22:32]
+        return UUID(value)
 
 db = MySQLDatabase('db',
                    user='user', 
