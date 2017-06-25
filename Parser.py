@@ -5,6 +5,7 @@ from Farms import Farms
 from peewee import *
 from playhouse.csv_loader import load_csv
 from uuid import uuid4
+from binascii import hexlify
 
 CWD = os.getcwd()
 
