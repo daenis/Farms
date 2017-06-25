@@ -52,7 +52,7 @@ class Parser:
 
     def get_dictionary(self):
         return {
-            'uuid': uuid4(),
+            'uuid': uuid4().bytes,
             'name': self.name,
             'street_address': self.street_address,
             'city': self.city,
