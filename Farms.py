@@ -1,9 +1,9 @@
 from peewee import *
-from db import db, UUIDFieldProper
+from db import db
 from playhouse.csv_loader import load_csv
 
 class Farms(Model):
-    uuid = UUIDFieldProper(primary_key=True)
+    uuid = BlobField(primary_key=True)
     category = CharField()
     description = CharField()
     quantity = DoubleField()

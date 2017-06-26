@@ -3,9 +3,10 @@ import os
 from db import db
 from Farms import Farms
 from peewee import *
+from pymysql import Binary
 from playhouse.csv_loader import load_csv
 from uuid import uuid4
-from binascii import hexlify
+from binascii import unhexlify
 
 CWD = os.getcwd()
 
@@ -51,8 +52,10 @@ class Parser:
         return self.__determinate(self.type, other)
 
     def get_dictionary(self):
+        _id = uuid4().bytes
+        print(_id)
         return {
-            'uuid': uuid4(),
+            'uuid': _id,
             'name': self.name,
             'street_address': self.street_address,
             'city': self.city,
@@ -62,6 +65,13 @@ class Parser:
             'website': self.website,
             'type': self.type
         }
+    
+    @staticmethod
+    def _generate_id():
+        value = uuid4()
+        value = value.hex.translate(str.maketrans({'-': None}))
+        print(Binary(unhexlify(value)))
+        return Binary(unhexlify(value))
 
     @staticmethod
     def csv_to_model():

@@ -1,8 +1,11 @@
 from binascii import a2b_uu, b2a_hex, hexlify, unhexlify
-from peewee import MySQLDatabase, Field, SelectQuery, fn
+from peewee import MySQLDatabase, BlobField, SelectQuery, fn
 from uuid import UUID
+import string
+import chardet
+from pymysql import Binary
 
-class UUIDFieldProper(Field):
+class UUIDFieldProper(BlobField):
     """
     This class was takn to resolve issues with the uuid
     checkout: 
@@ -12,11 +15,14 @@ class UUIDFieldProper(Field):
     db_field='binary(16)'
 
     def db_value(self, value):
-        print(value.urn[9:])
         if value is None:
             return None
-        print(len(value.urn[9:].encode('utf8')))
-        return value.urn[9:]
+        print(chardet.detect(value.bytes))
+        value = value.hex.translate(str.maketrans({'-': None}))
+        query = SelectQuery(self.model_class, fn.UNHEX(value).alias('unhex'))
+        result = query.first()
+        print(result.unhex)
+        return Binary(result.unhex)
 
     def python_value(self, value):
         if value is None:
@@ -31,7 +37,6 @@ class UUIDFieldProper(Field):
             result.hex[20:32]
         )
         return value
-
 
 db = MySQLDatabase('db',
                    user='user', 
