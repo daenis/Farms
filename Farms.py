@@ -1,15 +1,4 @@
 class Farms:
-    """__slots__ = [
-        'uuid',
-        'name',
-        'street_address',
-        'state',
-        'city',
-        'zip',
-        'phone',
-        'website',
-        '__table'
-    ]"""
     def __init__(self):
         self.uuid = None
         self.name = ''
@@ -19,11 +8,11 @@ class Farms:
         self.zip = ''
         self.phone = ''
         self.website = ''
-        self.__table = 'FARMS'
+        self.table = 'FARMS'
 
     def create(self, **kwargs):
         for field in self.__dict__:
-            if field != '_Farms__table':
+            if field != 'table':
                 print(field)
                 self.__dict__[field] = kwargs[field]
     
@@ -38,8 +27,9 @@ class Farms:
             "`phone`," \
             "`website`" \
             ")" \
-            " VALUES (\"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\");".format(
-                self.__table,
+            " VALUES (\"{}\", \"{}\", \"{}\", \"{}\"," \
+            " \"{}\", \"{}\", \"{}\", \"{}\");".format(
+                self.table,
                 self.uuid,
                 self.name,
                 self.street_address,

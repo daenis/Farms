@@ -70,12 +70,14 @@ class Parser:
 
     @staticmethod
     def csv_to_model():
-        cur = db.cursor()
         with open(CWD + '/farm_data.csv', 'r') as file:
             for line in file:
                 parsed = Parser(line)
                 if parsed == 'Farm':
                     farm = Farms()
+                    cur = db.cursor()
                     farm.create(**parsed.get_dictionary())
-                    print(farm.sql_insert_statement())
                     cur.execute(farm.sql_insert_statement())
+                    db.commit()
+                    cur.close()
+        db.close()
