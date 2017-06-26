@@ -65,8 +65,8 @@ class Parser:
     @staticmethod
     def _generate_id():
         value = uuid4()
-        value = value.bytes.translate(str.maketrans({'-': None}))
-        return Binary(bytes)
+        value = value.hex.translate(str.maketrans({'-': None}))
+        return value[0:16]
 
     @staticmethod
     def csv_to_model():

@@ -38,7 +38,7 @@ class Farms:
             "`phone`," \
             "`website`" \
             ")" \
-            " VALUES ({}, \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\");".format(
+            " VALUES (\"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\");".format(
                 self.__table,
                 self.uuid,
                 self.name,
