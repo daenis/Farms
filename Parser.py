@@ -1,10 +1,10 @@
 import csv
 import os
 from db import db
-from pymysql import Binary
 from Farms import Farms
 from uuid import uuid4
 from binascii import unhexlify
+from FarmersMarkets import FarmersMarkets
 
 CWD = os.getcwd()
 
@@ -61,7 +61,7 @@ class Parser:
             'website': self.website,
             'type': self.type
         }
-    
+
     @staticmethod
     def _generate_id():
         value = uuid4()
@@ -71,13 +71,20 @@ class Parser:
     @staticmethod
     def csv_to_model():
         with open(CWD + '/farm_data.csv', 'r') as file:
+            cur = db.cursor()
             for line in file:
+                sql = None
                 parsed = Parser(line)
                 if parsed == 'Farm':
                     farm = Farms()
-                    cur = db.cursor()
                     farm.create(**parsed.get_dictionary())
-                    cur.execute(farm.sql_insert_statement())
+                    sql = farm.sql_insert_statement()
+                elif parsed == 'Farmers Market':
+                    farmers_market = FarmersMarkets()
+                    farmers_market.create(**parsed.get_dictionary())
+                    sql = farmers_market.sql_insert_statement()
+                if sql != None:
+                    cur.execute(sql)
                     db.commit()
-                    cur.close()
+            cur.close()
         db.close()

@@ -13,7 +13,6 @@ class Farms:
     def create(self, **kwargs):
         for field in self.__dict__:
             if field != 'table':
-                print(field)
                 self.__dict__[field] = kwargs[field]
     
     def sql_insert_statement(self):
