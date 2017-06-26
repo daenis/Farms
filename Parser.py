@@ -1,10 +1,8 @@
 import csv
 import os
 from db import db
-from Farms import Farms
-from peewee import *
 from pymysql import Binary
-from playhouse.csv_loader import load_csv
+from Farms import Farms
 from uuid import uuid4
 from binascii import unhexlify
 
@@ -52,10 +50,8 @@ class Parser:
         return self.__determinate(self.type, other)
 
     def get_dictionary(self):
-        _id = uuid4().bytes
-        print(_id)
         return {
-            'uuid': _id,
+            'uuid': self._generate_id(),
             'name': self.name,
             'street_address': self.street_address,
             'city': self.city,
@@ -69,16 +65,17 @@ class Parser:
     @staticmethod
     def _generate_id():
         value = uuid4()
-        value = value.hex.translate(str.maketrans({'-': None}))
-        print(Binary(unhexlify(value)))
-        return Binary(unhexlify(value))
+        value = value.bytes.translate(str.maketrans({'-': None}))
+        return Binary(bytes)
 
     @staticmethod
     def csv_to_model():
-        db.connect()
+        cur = db.cursor()
         with open(CWD + '/farm_data.csv', 'r') as file:
             for line in file:
                 parsed = Parser(line)
                 if parsed == 'Farm':
-                    farm = Farms.create(**parsed.get_dictionary())
-                    farm.save()
+                    farm = Farms()
+                    farm.create(**parsed.get_dictionary())
+                    print(farm.sql_insert_statement())
+                    cur.execute(farm.sql_insert_statement())
