@@ -5,6 +5,7 @@ from Farms import Farms
 from uuid import uuid4
 from binascii import unhexlify
 from FarmersMarkets import FarmersMarkets
+import re
 
 CWD = os.getcwd()
 
@@ -34,20 +35,30 @@ class Parser:
         self.type = values[7]
 
     @staticmethod
-    def _clean_string(string):
+    def _clean_string(string):    
         return ''.join(s.lower() for s in string.rstrip() if not s.isspace())
 
     @staticmethod
-    def __determinate(first, second):
+    def format_string(string):
+        regex = re.compile('.*".*,.*".*')
+        if(regex.match(string)):
+            string = re.sub(',','',string,count=1)
+        string = re.sub('"', '',string,count=2)
+        return string
+
+    @staticmethod
+    def __determinate(first, second, third):
         cmp_first = Parser._clean_string(first)
         cmp_second = Parser._clean_string(second)
-        return cmp_first == cmp_second
+        cmp_third = Parser._clean_string(third)
+        regexp = re.compile('.*(%s).*'%cmp_second, flags=re.IGNORECASE)
+        return cmp_first == cmp_second or regexp.search(cmp_third)
 
     def __eq__(self, other):
-        return self.__determinate(self.type, other)
+        return self.__determinate(self.type, other, self.name)
 
     def __ne__(self, other):
-        return self.__determinate(self.type, other)
+        return self.__determinate(self.type, other, self.name)
 
     def get_dictionary(self):
         return {
@@ -73,16 +84,17 @@ class Parser:
         with open(CWD + '/farm_data.csv', 'r') as file:
             cur = db.cursor()
             for line in file:
+                line = Parser.format_string(line)
                 sql = None
                 parsed = Parser(line)
-                if parsed == 'Farm':
-                    farm = Farms()
-                    farm.create(**parsed.get_dictionary())
-                    sql = farm.sql_insert_statement()
-                elif parsed == 'Farmers Market':
+                if parsed == 'Market':
                     farmers_market = FarmersMarkets()
                     farmers_market.create(**parsed.get_dictionary())
                     sql = farmers_market.sql_insert_statement()
+                elif parsed == 'Farm':
+                    farm = Farms()
+                    farm.create(**parsed.get_dictionary())
+                    sql = farm.sql_insert_statement()
                 if sql != None:
                     cur.execute(sql)
                     db.commit()
