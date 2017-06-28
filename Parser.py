@@ -35,13 +35,19 @@ class Parser:
         self.type = values[7]
 
     @staticmethod
-    def _clean_string(string):
+    def _clean_string(string):    
         return ''.join(s.lower() for s in string.rstrip() if not s.isspace())
 
     @staticmethod
+    def format_string(string):
+        regex = re.compile('.*".*,.*".*')
+        if(regex.match(string)):
+            string = re.sub(',','',string,count=1)
+        string = re.sub('"', '',string,count=2)
+        return string
+
+    @staticmethod
     def __determinate(first, second, third):
-        # Some Farm names include ', inc' in them, therefore requiring quotes. The combination
-        # of the comma and the quotes is throwing off the regex operation
         cmp_first = Parser._clean_string(first)
         cmp_second = Parser._clean_string(second)
         cmp_third = Parser._clean_string(third)
@@ -78,6 +84,7 @@ class Parser:
         with open(CWD + '/farm_data.csv', 'r') as file:
             cur = db.cursor()
             for line in file:
+                line = Parser.format_string(line)
                 sql = None
                 parsed = Parser(line)
                 if parsed == 'Market':
